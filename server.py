@@ -33,6 +33,8 @@ def create_range_queue(start, end, chunk_size):
     :type chunk_size: int
     :return: None
     """
+    global RANGE_QUEUE
+    RANGE_QUEUE = []
     current = start
 
     while current < end:
@@ -115,4 +117,27 @@ def main():
 
 if __name__ == "__main__":
     # Call the main handler function
+     # Test create_range_queue function
+    print("Testing create_range_queue function:")
+    
+    # Test case 1: Small range
+    create_range_queue(0, 100, 30)
+    expected_queue_1 = ['0-29', '30-59', '60-89', '90-100']
+    assert RANGE_QUEUE == expected_queue_1, f"Test case 1 failed. Expected {expected_queue_1}, but got {RANGE_QUEUE}"
+    print("Test case 1 passed.")
+
+    # Test case 2: Larger range
+    create_range_queue(1000, 5000, 1000)
+    expected_queue_2 = ['1000-1999', '2000-2999', '3000-3999', '4000-4999']
+    assert RANGE_QUEUE == expected_queue_2, f"Test case 2 failed. Expected {expected_queue_2}, but got {RANGE_QUEUE}"
+    print("Test case 2 passed.")
+
+    # Test case 3: Range smaller than chunk size
+    create_range_queue(0, 50, 100)
+    expected_queue_3 = ['0-50']
+    assert RANGE_QUEUE == expected_queue_3, f"Test case 3 failed. Expected {expected_queue_3}, but got {RANGE_QUEUE}"
+    print("Test case 3 passed.")
+
+    print("All test cases for create_range_queue passed successfully.")
+
     main()

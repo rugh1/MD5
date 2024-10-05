@@ -45,9 +45,7 @@ def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         num_of_cores = os.cpu_count()
-        print("hi")
         client_socket.connect((IP, PORT))
-        print("hello")
         send(client_socket, num_of_cores)
         target = recv(client_socket)
         while FOUND == 'No':
@@ -69,4 +67,15 @@ def main():
 
 
 if __name__ == '__main__':
+     # Example usage and testing of md5_hash function
+    test_string = "Hello, World!"
+    expected_hash = "65a8e27d8879283831b664bd8b7f0ad4"
+    
+    result = md5_hash(test_string)
+    print(f"Input string: {test_string}")
+    print(f"Calculated MD5 hash: {result}")
+    print(f"Expected MD5 hash:   {expected_hash}")
+    
+    assert result == expected_hash, "MD5 hash calculation is incorrect!"
+    print("MD5 hash calculation is correct.")
     main()

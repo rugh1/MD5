@@ -1,7 +1,7 @@
 """
 author: rugh1
 date: 05/10/24
-description: server for md5 project built on nir dweck's simple multi-threaded TCP server 
+description: server for md5 project built on nir dweck's simple multithreaded TCP server
 """
 import socket
 from threading import Thread
@@ -20,45 +20,50 @@ MAX_RANGE = 400000000
 CHUNK_SIZE = 10000000
 lock = Lock()
 
+
 def create_range_queue(start, end, chunk_size):
     """
     Creates a queue of smaller ranges from a larger range.
     
-    Args:
-    start (int): The start of the large range.
-    end (int): The end of the large range.
-    chunk_size (int): The size of each smaller range.
-    
-    Returns:
-    deque: A queue of tuples, each containing (start, end) of a smaller range.
+    :param start: The start of the large range
+    :type start: int
+    :param end: The end of the large range
+    :type end: int
+    :param chunk_size: The size of each smaller range
+    :type chunk_size: int
+    :return: None
     """
     current = start
-    
+
     while current < end:
         range_start = current
         range_end = min(current + chunk_size - 1, end)
-        RANGE_QUEUE.append((f'{range_start}-{range_end}'))
+        RANGE_QUEUE.append(f'{range_start}-{range_end}')
         current = range_end + 1
+
 
 def handle_connection(client_socket, client_address):
     """
-    handle a connection
-    :param client_socket: the connection socket
-    :param client_address: the remote address
+    Handle a client connection.
+
+    :param client_socket: The connection socket    :type client_socket: .socket
+    :param client_address: The remote address
+    :type client_address: tuple
     :return: None
     """
     try:
+        current_range = None  # New: Initialize current_range
         global FOUND
-        global lock 
-        print("got connection")
+        global lock
+        print(f"got connection {client_address}")
         num_of_cores = int(recv(client_socket))
         print(num_of_cores)
         send(client_socket, TARGET)
-        current_range = None  # New: Initialize current_range
         while len(RANGE_QUEUE) > 0 and FOUND == 'No':
             lock.acquire()
             print(len(RANGE_QUEUE))
-            if len(RANGE_QUEUE) == 0: 
+            if len(RANGE_QUEUE) == 0:
+                lock.release()
                 break
             current_range = RANGE_QUEUE.pop()
             lock.release()
@@ -80,7 +85,14 @@ def handle_connection(client_socket, client_address):
 
 
 def main():
-    # Open a socket and loop forever while waiting for clients
+    """
+    Main function to set up the server and handle client connections.
+
+    This function creates the range queue, sets up the server socket,
+    and continuously accepts new client connections, spawning a new thread for each.
+
+    :return: None
+    """
     create_range_queue(MIN_RANGE, MAX_RANGE, CHUNK_SIZE)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -88,7 +100,7 @@ def main():
         server_socket.bind((IP, PORT))
         server_socket.listen(QUEUE_SIZE)
         print("Listening for connections on port %d" % PORT)
-        
+
         while FOUND == 'No':
             client_socket, client_address = server_socket.accept()
             thread = Thread(target=handle_connection,

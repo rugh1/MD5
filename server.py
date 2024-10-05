@@ -59,6 +59,7 @@ def handle_connection(client_socket, client_address):
             lock.acquire()
             print(len(RANGE_QUEUE))
             if len(RANGE_QUEUE) == 0: 
+                lock.release()
                 break
             current_range = RANGE_QUEUE.pop()
             lock.release()
